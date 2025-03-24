@@ -6,7 +6,7 @@ import SignIn from './Auth/SignIn';
 import SignUp from './Auth/SignUp';
 import Home from './root/Home';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-
+import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <Router>
@@ -14,16 +14,9 @@ function App() {
       <Routes>
         <Route path="/sign-in" element={<SignIn/>} />
         <Route path="/sign-up" element={<SignUp/>} />
-        <Route path="/" element={<Home/>} />
-        {/* {isAuthenticated && (
-          <>
-            <Route path="/" element={<Home/>} />
-
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/logout" element={<Logout onLogout = {handleLogout} />} />
-          </>
-        )} */}
+        <Route element={<ProtectedRoute/>}>
+          <Route path="/" element={<Home />} />
+        </Route>
       </Routes>
     </Router>
   );
