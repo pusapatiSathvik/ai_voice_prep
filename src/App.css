@@ -1,7 +1,16 @@
-body{
+html, body {
+  height: 100%;
+  margin: 0; /* Important: Remove default body margin */
+}
+
+body {
   background-image: url('../public/background.jpg');
-  /* background-size: cover; */
-  background-size: auto;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-attachment: fixed; /* recommended */
+}
+
+.nav-color{
+  /* background-color: rgb(175, 136, 136); */
 }
