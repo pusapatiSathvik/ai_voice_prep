@@ -7,6 +7,7 @@ import SignUp from './Auth/SignUp';
 import Home from './root/Home';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import ProtectedRoute from './components/ProtectedRoute';
+import Page from './root/interview/Page';
 function App() {
   return (
     <Router>
@@ -16,6 +17,8 @@ function App() {
         <Route path="/sign-up" element={<SignUp/>} />
         <Route element={<ProtectedRoute/>}>
           <Route path="/" element={<Home />} />
+          <Route path="/generate" element={<Page/>} />
+
         </Route>
       </Routes>
     </Router>
