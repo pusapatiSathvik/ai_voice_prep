@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Vapi from "@vapi-ai/web";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import aiInterviewerLogo from './logo.svg';
 import userLogo from './logo.svg';
 
@@ -10,15 +10,14 @@ const Agent = ({ userName, userId, interviewId, feedbackId, type, questions }) =
   const [callStatus, setCallStatus] = useState("INACTIVE");
   const [messages, setMessages] = useState([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState("What job experience level are you targeting?");
+  const [lastMessage, setLastMessage] = useState("");
   const [vapiInstance, setVapiInstance] = useState(null);
   const [vapiInitialized, setVapiInitialized] = useState(false);
-  const [audioStream, setAudioStream] = useState(null);
 
   useEffect(() => {
     const initializeVapi = async () => {
       try {
-        const publicKey = "ce5ccc60-fb4b-483f-bd5b-cf5b184b41c6"; // Replace with your actual public key
+        const publicKey = process.env.VAPI_WEB_Token;
         if (publicKey) {
           const newVapiInstance = new Vapi(publicKey);
           setVapiInstance(newVapiInstance);
@@ -35,19 +34,34 @@ const Agent = ({ userName, userId, interviewId, feedbackId, type, questions }) =
 
   useEffect(() => {
     if (vapiInitialized && vapiInstance) {
-      const onCallStart = () => setCallStatus("ACTIVE");
-      const onCallEnd = () => setCallStatus("FINISHED");
+      const onCallStart = () => {
+        setCallStatus("ACTIVE");
+      };
+
+      const onCallEnd = () => {
+        setCallStatus("FINISHED");
+      };
+
       const onMessage = (message) => {
         if (message.type === "transcript" && message.transcriptType === "final") {
-          setMessages((prev) => [...prev, { role: message.role, content: message.transcript }]);
-          if (message.role === "assistant" && message.transcript) {
-            setCurrentQuestion(message.transcript);
-          }
+          const newMessage = { role: message.role, content: message.transcript };
+          setMessages((prev) => [...prev, newMessage]);
         }
       };
-      const onSpeechStart = () => setIsSpeaking(true);
-      const onSpeechEnd = () => setIsSpeaking(false);
-      const onError = (error) => console.log("Error:", error);
+
+      const onSpeechStart = () => {
+        console.log("speech start");
+        setIsSpeaking(true);
+      };
+
+      const onSpeechEnd = () => {
+        console.log("speech end");
+        setIsSpeaking(false);
+      };
+
+      const onError = (error) => {
+        console.log("Error:", error);
+      };
 
       vapiInstance.on("call-start", onCallStart);
       vapiInstance.on("call-end", onCallEnd);
@@ -70,36 +84,53 @@ const Agent = ({ userName, userId, interviewId, feedbackId, type, questions }) =
   }, [vapiInitialized, vapiInstance]);
 
   useEffect(() => {
-    if (callStatus === "FINISHED") {
-      router("/");
+    if (messages.length > 0) {
+      setLastMessage(messages[messages.length - 1].content);
     }
-  }, [messages, callStatus, type, userId, router]);
+
+    const handleGenerateFeedback = async (messages) => {
+      console.log("handleGenerateFeedback");
+      router.push("/");
+    };
+
+    if (callStatus === "FINISHED") {
+      if (type === "generate") {
+        router.push("/");
+      } else {
+        handleGenerateFeedback(messages);
+      }
+    }
+  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
 
   const handleCall = async () => {
     if (vapiInstance) {
       setCallStatus("CONNECTING");
-        await vapiInstance.start("35f159fc-e922-4bf9-b21a-57391b90b7de", { // Replace with correct workflow ID
+
+      if (type === "generate") {
+        await vapiInstance.start(process.env.REACT_APP_VAPI_WORKFLOW_ID, {
           variableValues: {
-            username: "bunny",
-            userid: "uservwPVYowZn4OiEAMQkVttn6crTCE3Id",
+            username: userName,
+            userid: userId,
           },
         });
+      } else {
+        await vapiInstance.start(process.env.REACT_APP_VAPI_WORKFLOW_ID, {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        });
+      }
     }
   };
 
   const handleDisconnect = () => {
+    if (vapiInstance) {
       setCallStatus("FINISHED");
       vapiInstance.stop();
-
-    }
-    
-  const handleRepeat = () => {
-    if (vapiInstance) {
-      vapiInstance.repeat();
     }
   };
-  const isCallInactiveOrFinished = callStatus === "INACTIVE" || callStatus === "FINISHED";
-  const latestMessage = messages[messages.length -1]?.content;
+
   return (
     <div className="container-fluid agent-cards-container">
       <div className="row justify-content-center">
@@ -123,20 +154,14 @@ const Agent = ({ userName, userId, interviewId, feedbackId, type, questions }) =
       <div className="row justify-content-center mb-4">
         <div className="col-md-8 question-box">
           <p className="question-text text-center">
-            {currentQuestion}
+            What job experience level are you targeting?
           </p>
         </div>
       </div>
       <div className="row justify-content-center">
         <div className="col-md-8 d-flex justify-content-center">
-          {callStatus !== "ACTIVE" ? (
-            <button className="btn btn-primary" onClick={handleCall}>Start Interview</button>
-          ) : (
-            <>
-              <button className="btn btn-secondary mr-2" onClick={handleRepeat}>Repeat</button>
-              <button className="btn btn-danger" onClick={handleDisconnect}>Leave interview</button>
-            </>
-          )}
+          <button className="btn btn-secondary mr-2">Repeat</button>
+          <button className="btn btn-danger">Leave interview</button>
         </div>
       </div>
     </div>

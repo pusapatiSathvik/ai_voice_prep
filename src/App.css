@@ -14,3 +14,23 @@ body {
 .nav-color{
   /* background-color: rgb(175, 136, 136); */
 }
+
+h3, h5, h6 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.card-style {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.info-box {
+  background-color: #fff8e1;
+  border-left: 6px solid #fbc02d;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #6b5e00;
+}
