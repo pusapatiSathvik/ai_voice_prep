@@ -6,6 +6,7 @@ import { db } from '../Firebase/client';
 const Interview = () => {
   const [marginTop, setMarginTop] = useState("80px");
   const userId = localStorage.getItem("userId");
+
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -37,9 +38,11 @@ const Interview = () => {
       console.log("Fetched Interview:", interview);
       console.log("Fetched Interview:", interview.questions);
       const questions = interview.questions
+      const role = interview.role
   
       setLoading(false);
-      navigate("/interview/questions", { state: { questions} });
+      navigate("/generate", { state: { questions,interviewId,role} });
+
     } catch (error) {
       console.error("Axios error:", error);
       setLoading(false);

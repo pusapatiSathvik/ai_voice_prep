@@ -10,8 +10,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Page from './interview/Page';
 import Interview from './interview/Interview';
 import QuestionsPage from './interview/Questions';
-import Start from './interview/Start';
-import VoiceCheck from './interview/VoiceCheck';
+// import Start from './interview/Start';
+// import VoiceCheck from './interview/VoiceCheck';
+import FeedbackDetails from './interview/FeedbackDetails';
+import SearchFeedbackById from './interview/SearchFeedbackById';
 function App() {
   return (
     <Router>
@@ -24,8 +26,10 @@ function App() {
           <Route path="/generate" element={<Page/>} />
           <Route path="/interview" element={<Interview/>} />
           <Route path="/interview/questions" element={<QuestionsPage />} />
-          <Route path="/interview/start" element={<Start/>} />
-          <Route path="/Audio" element={<VoiceCheck/>} />
+          {/* <Route path="/interview/start" element={<Start/>} /> */}
+          {/* <Route path="/Audio" element={<VoiceCheck/>} /> */}
+          <Route path="/interview/:interviewId/feedback/:feedbackId" element={<FeedbackDetails />} />
+          <Route path="/search-feedback" element={<SearchFeedbackById />} />
 
         </Route>
       </Routes>
