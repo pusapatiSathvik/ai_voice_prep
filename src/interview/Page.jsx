@@ -4,7 +4,7 @@ import Agent from '../components/Agent';
 import TestVapiCall from '../components/TestVapiCall';
 import SimpleCallPage from '../components/SimpleCallPage';
 const exportedUserName = "bunny";
-const exportedUserId = "vwPVYowZn4OiEAMQkVttn6crTCE3"
+const exportedUserId = "m4OuLHGiv4V2XMt7NYsVgj1EDK83"
 const Page = () => {
   const location = useLocation();
   const { questions, interviewId,role} = location.state || {};
@@ -19,8 +19,6 @@ const Page = () => {
         jobRole={role}
 
     />
-    {/* <TestVapiCall/> */}
-    {/* <SimpleCallPage/> */}
     </>
   )
 }

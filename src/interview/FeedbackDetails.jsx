@@ -47,53 +47,38 @@ const FeedbackDetails = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Feedback Details</h2>
-      <p>
-        <strong>Interview ID:</strong> {feedbackData.interviewId}
-      </p>
-      <p>
-        <strong>User ID:</strong> {feedbackData.userId}
-      </p>
+      
+      {feedbackData && (
+        <div className="card p-4 shadow-sm">
+          <h4>Feedback Details</h4>
+          <p><strong>Interview ID:</strong> {feedbackData.interviewId}</p>
+          <p><strong>User ID:</strong> {feedbackData.userId}</p>
 
-      <h3>Rating:</h3>
-      <p>
-        <strong>Technical Skills:</strong>{" "}
-        {feedbackData.rating?.technicalSkills}/10
-      </p>
-      <p>
-        <strong>Communication:</strong> {feedbackData.rating?.communication}/10
-      </p>
-      <p>
-        <strong>Problem Solving:</strong> {feedbackData.rating?.problemSolving}
-        /10
-      </p>
-      <p>
-        <strong>Experience:</strong> {feedbackData.rating?.experience}/10
-      </p>
+          <h5>Ratings</h5>
+          <ul>
+            <li><strong>Technical Skills:</strong> {feedbackData.rating?.technicalSkills}/10</li>
+            <li><strong>Communication:</strong> {feedbackData.rating?.communication}/10</li>
+            <li><strong>Problem Solving:</strong> {feedbackData.rating?.problemSolving}/10</li>
+            <li><strong>Experience:</strong> {feedbackData.rating?.experience}/10</li>
+          </ul>
 
-      <h3>Summary:</h3>
-      <ul>
-        {feedbackData.summary?.map((point, idx) => (
-          <li key={idx}>{point}</li>
-        ))}
-      </ul>
+          <h5>Summary</h5>
+          <ul>
+            {feedbackData.summary?.map((point, idx) => (
+              <li key={idx}>{point}</li>
+            ))}
+          </ul>
 
-      <h3>Recommendation:</h3>
-      <p>
-        <strong>Decision:</strong> {feedbackData.recommendation}
-      </p>
-      <p>
-        <strong>Message:</strong> {feedbackData.recommendationMsg}
-      </p>
+          <h5>Recommendation</h5>
+          <p><strong>Decision:</strong> {feedbackData.recommendation}</p>
+          <p><strong>Message:</strong> {feedbackData.recommendationMsg}</p>
 
-      <p>
-        <strong>Created At:</strong>
-        {feedbackData.createdAt
-          ? feedbackData.createdAt.toDate().toLocaleString()
-          : "N/A"}
-      </p>
-
-      {/* You can add more details here as needed */}
+          <p>
+            <strong>Created At:</strong>{" "}
+            {feedbackData.createdAt ? feedbackData.createdAt.toDate().toLocaleString() : "N/A"}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
