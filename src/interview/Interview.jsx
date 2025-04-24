@@ -8,8 +8,7 @@ import { Loader2 } from 'lucide-react'; // For the loading spinner
 import { motion } from 'framer-motion'; // For animations
 
 const Interview = () => {
-  const [marginTop, setMarginTop] = useState("80px");
-  setMarginTop("80px");
+  const serverUrl = process.env.REACT_APP_SERVER_URL;
   const userId = localStorage.getItem("userId");
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({}); // State for form validation errors
@@ -70,7 +69,7 @@ const Interview = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:3030/api", formData);
+      const response = await axios.post(`${serverUrl}/api`, formData);
       const { interviewId } = response.data;
 
       const interview = await fetchInterviewById(interviewId);
@@ -100,7 +99,7 @@ const Interview = () => {
   return (
     <>
       <section>
-        <div className="container" style={{ marginTop, padding: "20px" }}>
+        <div className="container" style={{ marginTop: "80px", padding: "20px" }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
