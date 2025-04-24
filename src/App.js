@@ -26,11 +26,8 @@ function App() {
           <Route path="/generate" element={<Page/>} />
           <Route path="/interview" element={<Interview/>} />
           <Route path="/interview/questions" element={<QuestionsPage />} />
-          {/* <Route path="/interview/start" element={<Start/>} /> */}
-          {/* <Route path="/Audio" element={<VoiceCheck/>} /> */}
           <Route path="/interview/:interviewId/feedback/:feedbackId" element={<FeedbackDetails />} />
           <Route path="/search-feedback" element={<SearchFeedbackById />} />
-
         </Route>
       </Routes>
     </Router>

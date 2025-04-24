@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/client"; // Import the initialized db instance
+import { format } from 'date-fns';
 
 const FeedbackDetails = () => {
   const { interviewId, feedbackId } = useParams();
@@ -45,40 +46,52 @@ const FeedbackDetails = () => {
     return <div>No feedback data available.</div>;
   }
 
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    try {
+        const date = timestamp.toDate(); // Convert Firestore Timestamp to Date object
+        return format(date, 'PPPppp'); // Format the date as desired
+    } catch (e){
+        console.error("Error formatting date", e);
+        return 'Invalid Date';
+    }
+
+  };
+
   return (
     <div className="container mt-5">
-      
-      {feedbackData && (
-        <div className="card p-4 shadow-sm">
-          <h4>Feedback Details</h4>
-          <p><strong>Interview ID:</strong> {feedbackData.interviewId}</p>
-          <p><strong>User ID:</strong> {feedbackData.userId}</p>
+      <div className="card p-4 shadow-sm">
+        <h4>Feedback Details</h4>
+        <p><strong>Interview ID:</strong> {feedbackData.interviewId}</p>
+        <p><strong>User ID:</strong> {feedbackData.userId}</p>
 
-          <h5>Ratings</h5>
-          <ul>
-            <li><strong>Technical Skills:</strong> {feedbackData.rating?.technicalSkills}/10</li>
-            <li><strong>Communication:</strong> {feedbackData.rating?.communication}/10</li>
-            <li><strong>Problem Solving:</strong> {feedbackData.rating?.problemSolving}/10</li>
-            <li><strong>Experience:</strong> {feedbackData.rating?.experience}/10</li>
-          </ul>
+        <h5>Question Analysis</h5>
+        {feedbackData.questionAnalysis && feedbackData.questionAnalysis.map((qna, index) => (
+          <div key={index} className="mb-3">
+            <p><strong>Question:</strong> {qna.question}</p>
+            <p><strong>User Response Summary:</strong> {qna.userResponseSummary}</p>
+            <p><strong>Relevance:</strong> {qna.relevanceAnalysis.relevant}</p>
+            <p><strong>Relevance Reasoning:</strong> {qna.relevanceAnalysis.reasoning}</p>
+          </div>
+        ))}
 
-          <h5>Summary</h5>
-          <ul>
-            {feedbackData.summary?.map((point, idx) => (
-              <li key={idx}>{point}</li>
-            ))}
-          </ul>
+        <h5>Overall Rating</h5>
+        <ul>
+          <li><strong>Technical Skills:</strong> {feedbackData.overallRating?.technicalSkills}/10</li>
+          <li><strong>Communication:</strong> {feedbackData.overallRating?.communication}/10</li>
+          <li><strong>Problem Solving:</strong> {feedbackData.overallRating?.problemSolving}/10</li>
+          <li><strong>Experience:</strong> {feedbackData.overallRating?.experience}/10</li>
+        </ul>
 
-          <h5>Recommendation</h5>
-          <p><strong>Decision:</strong> {feedbackData.recommendation}</p>
-          <p><strong>Message:</strong> {feedbackData.recommendationMsg}</p>
+        <h5>Overall Summary</h5>
+        <p>{feedbackData.overallSummary}</p>
 
-          <p>
-            <strong>Created At:</strong>{" "}
-            {feedbackData.createdAt ? feedbackData.createdAt.toDate().toLocaleString() : "N/A"}
-          </p>
-        </div>
-      )}
+        <h5>Recommendation</h5>
+        <p><strong>Decision:</strong> {feedbackData.recommendation}</p>
+        <p><strong>Message:</strong> {feedbackData.recommendationMessage}</p>
+
+        <p><strong>Created At:</strong> {formatDate(feedbackData.createdAt)}</p>
+      </div>
     </div>
   );
 };

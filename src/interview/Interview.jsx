@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../Firebase/client';
+
 const Interview = () => {
   const [marginTop, setMarginTop] = useState("80px");
   const userId = localStorage.getItem("userId");
-
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -183,6 +183,7 @@ const Interview = () => {
           </div>
         </div>
       </section>
+
     </>
   );
 };

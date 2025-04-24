@@ -1,8 +1,6 @@
 import React from 'react'
 import { useLocation } from "react-router-dom";
 import Agent from '../components/Agent';
-import TestVapiCall from '../components/TestVapiCall';
-import SimpleCallPage from '../components/SimpleCallPage';
 const exportedUserName = "bunny";
 const exportedUserId = "m4OuLHGiv4V2XMt7NYsVgj1EDK83"
 const Page = () => {
@@ -11,6 +9,7 @@ const Page = () => {
   return (
     <>
     <div>Interview Page</div>
+    <div>{process.env.REACT_APP_VAPI_WEB_TOKEN}</div>
     <Agent 
         userName={exportedUserName} 
         userId={exportedUserId}

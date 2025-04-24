@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Firebase/client";
+import { format } from 'date-fns';
 
 const SearchFeedbackById = () => {
   const [feedbackId, setFeedbackId] = useState("");
@@ -18,7 +19,14 @@ const SearchFeedbackById = () => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        setFeedbackData(docSnap.data());
+        const data = docSnap.data();
+        // Check if the necessary feedback fields exist
+        if (data.questionAnalysis && data.overallRating && data.overallSummary && data.recommendation && data.recommendationMessage) {
+          setFeedbackData(data);
+        }
+        else {
+          setError("Incomplete feedback data found.  Please check the database.");
+        }
       } else {
         setError("Feedback not found!");
       }
@@ -28,6 +36,18 @@ const SearchFeedbackById = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+    const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+        try {
+            const date = timestamp.toDate();
+            return format(date, 'PPPppp');
+        } catch (e) {
+            console.error("Error formatting date", e);
+            return 'Invalid Date';
+        }
+
   };
 
   return (
@@ -56,29 +76,32 @@ const SearchFeedbackById = () => {
           <p><strong>Interview ID:</strong> {feedbackData.interviewId}</p>
           <p><strong>User ID:</strong> {feedbackData.userId}</p>
 
-          <h5>Ratings</h5>
+          <h5>Question Analysis</h5>
+          {feedbackData.questionAnalysis && feedbackData.questionAnalysis.map((qna, index) => (
+            <div key={index} className="mb-3">
+              <p><strong>Question:</strong> {qna.question}</p>
+              <p><strong>User Response Summary:</strong> {qna.userResponseSummary}</p>
+              <p><strong>Relevance:</strong> {qna.relevanceAnalysis.relevant}</p>
+              <p><strong>Relevance Reasoning:</strong> {qna.relevanceAnalysis.reasoning}</p>
+            </div>
+          ))}
+
+          <h5>Overall Rating</h5>
           <ul>
-            <li><strong>Technical Skills:</strong> {feedbackData.rating?.technicalSkills}/10</li>
-            <li><strong>Communication:</strong> {feedbackData.rating?.communication}/10</li>
-            <li><strong>Problem Solving:</strong> {feedbackData.rating?.problemSolving}/10</li>
-            <li><strong>Experience:</strong> {feedbackData.rating?.experience}/10</li>
+            <li><strong>Technical Skills:</strong> {feedbackData.overallRating?.technicalSkills}/10</li>
+            <li><strong>Communication:</strong> {feedbackData.overallRating?.communication}/10</li>
+            <li><strong>Problem Solving:</strong> {feedbackData.overallRating?.problemSolving}/10</li>
+            <li><strong>Experience:</strong> {feedbackData.overallRating?.experience}/10</li>
           </ul>
 
-          <h5>Summary</h5>
-          <ul>
-            {feedbackData.summary?.map((point, idx) => (
-              <li key={idx}>{point}</li>
-            ))}
-          </ul>
+          <h5>Overall Summary</h5>
+          <p>{feedbackData.overallSummary}</p>
 
           <h5>Recommendation</h5>
           <p><strong>Decision:</strong> {feedbackData.recommendation}</p>
-          <p><strong>Message:</strong> {feedbackData.recommendationMsg}</p>
+          <p><strong>Message:</strong> {feedbackData.recommendationMessage}</p>
 
-          <p>
-            <strong>Created At:</strong>{" "}
-            {feedbackData.createdAt ? feedbackData.createdAt.toDate().toLocaleString() : "N/A"}
-          </p>
+          <p><strong>Created At:</strong> {formatDate(feedbackData.createdAt)}</p>
         </div>
       )}
     </div>
