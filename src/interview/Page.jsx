@@ -1,25 +1,27 @@
-import React from 'react'
+import React from 'react';
 import { useLocation } from "react-router-dom";
 import Agent from '../components/Agent';
-const exportedUserName = "bunny";
-const exportedUserId = "m4OuLHGiv4V2XMt7NYsVgj1EDK83"
+
 const Page = () => {
   const location = useLocation();
-  const { questions, interviewId,role} = location.state || {};
+  const { questions, interviewId, role } = location.state || {};
+
+  // Get username and userId from localStorage
+  const userName = localStorage.getItem('userName') || "DefaultUser"; // Provide a default
+  const userId = localStorage.getItem('userId') || "DefaultUserID";     // Provide a default
+
   return (
     <>
-    <div>Interview Page</div>
-    <div>{process.env.REACT_APP_VAPI_WEB_TOKEN}</div>
-    <Agent 
-        userName={exportedUserName} 
-        userId={exportedUserId}
+      <div>Interview Page</div>
+      <Agent
+        userName={userName}
+        userId={userId}
         questions={questions}
         interviewId={interviewId}
         jobRole={role}
-
-    />
+      />
     </>
-  )
-}
+  );
+};
 
 export default Page;
