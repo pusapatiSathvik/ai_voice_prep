@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Firebase/client"; // Import the initialized db instance
-import { format } from 'date-fns';
+import { db } from "../Firebase/client";
+import { format } from "date-fns";
 
 const FeedbackDetails = () => {
-  const { interviewId, feedbackId } = useParams();
+  const { feedbackId } = useParams(); // Removed unused interviewId
   const [feedbackData, setFeedbackData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,28 +34,19 @@ const FeedbackDetails = () => {
     fetchFeedback();
   }, [feedbackId]);
 
-  if (loading) {
-    return <div>Loading feedback...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!feedbackData) {
-    return <div>No feedback data available.</div>;
-  }
+  if (loading) return <div>Loading feedback...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!feedbackData) return <div>No feedback data available.</div>;
 
   const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
+    if (!timestamp) return "N/A";
     try {
-        const date = timestamp.toDate(); // Convert Firestore Timestamp to Date object
-        return format(date, 'PPPppp'); // Format the date as desired
-    } catch (e){
-        console.error("Error formatting date", e);
-        return 'Invalid Date';
+      const date = timestamp.toDate();
+      return format(date, "PPPppp");
+    } catch (e) {
+      console.error("Error formatting date", e);
+      return "Invalid Date";
     }
-
   };
 
   return (
@@ -66,7 +57,7 @@ const FeedbackDetails = () => {
         <p><strong>User ID:</strong> {feedbackData.userId}</p>
 
         <h5>Question Analysis</h5>
-        {feedbackData.questionAnalysis && feedbackData.questionAnalysis.map((qna, index) => (
+        {feedbackData.questionAnalysis?.map((qna, index) => (
           <div key={index} className="mb-3">
             <p><strong>Question:</strong> {qna.question}</p>
             <p><strong>User Response Summary:</strong> {qna.userResponseSummary}</p>

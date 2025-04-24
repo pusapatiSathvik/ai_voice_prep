@@ -9,6 +9,7 @@ import { motion } from 'framer-motion'; // For animations
 
 const Interview = () => {
   const [marginTop, setMarginTop] = useState("80px");
+  setMarginTop("80px");
   const userId = localStorage.getItem("userId");
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({}); // State for form validation errors

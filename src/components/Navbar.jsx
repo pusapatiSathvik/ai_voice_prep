@@ -1,6 +1,6 @@
 import React from 'react';
 import '../App.css';
-import { auth } from '../Firebase/client'; // Import your Firebase auth
+import { auth } from '../Firebase/client';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,19 +9,19 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-        await signOut(auth);
-        console.log('User signed out');
-        navigate('/sign-in');
-      } catch (error) {
-        console.error('Sign-out error:', error);
-      }
+      await signOut(auth);
+      console.log('User signed out');
+      navigate('/sign-in');
+    } catch (error) {
+      console.error('Sign-out error:', error);
+    }
   };
 
   return (
     <div>
       <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">
+          <a className="navbar-brand" href="/">
             Navbar
           </a>
           <button
@@ -38,19 +38,19 @@ const Navbar = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">
+                <a className="nav-link active" aria-current="page" href="/">
                   Home
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                <a className="nav-link" href="/link">
                   Link
                 </a>
               </li>
               <li className="nav-item dropdown">
                 <a
                   className="nav-link dropdown-toggle"
-                  href="#"
+                  href="/dropdown"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -59,12 +59,12 @@ const Navbar = () => {
                 </a>
                 <ul className="dropdown-menu">
                   <li>
-                    <a className="dropdown-item" href="#">
+                    <a className="dropdown-item" href="/action">
                       Action
                     </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#">
+                    <a className="dropdown-item" href="/another-action">
                       Another action
                     </a>
                   </li>
@@ -72,16 +72,16 @@ const Navbar = () => {
                     <hr className="dropdown-divider" />
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#">
+                    <a className="dropdown-item" href="/something-else">
                       Something else here
                     </a>
                   </li>
                 </ul>
               </li>
               <li className="nav-item">
-                <a className="nav-link disabled" aria-disabled="true">
+                <span className="nav-link disabled" aria-disabled="true">
                   Disabled
-                </a>
+                </span>
               </li>
             </ul>
             <button className="btn btn-outline-danger" onClick={handleLogout}>
