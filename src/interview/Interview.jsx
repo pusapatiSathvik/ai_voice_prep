@@ -69,6 +69,7 @@ const Interview = () => {
 
     setLoading(true);
     try {
+      console.log(`post req to ${serverUrl}/api`)
       const response = await axios.post(`${serverUrl}/api`, formData);
       const { interviewId } = response.data;
 
