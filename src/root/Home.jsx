@@ -2,25 +2,33 @@ import React, { useRef, useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; // For animations
+import { useAuth } from '../contexts/AuthContext'; // Import the useAuth hook
 
 const Home = () => {
   const navbarRef = useRef(null);
   const [marginTop, setMarginTop] = useState('80px');
-  const [userName, setUserName] = useState('');
+  // Removed local 'userName' state as it will come from AuthContext
+  // const [userName, setUserName] = useState('');
+
+  // Use the useAuth hook to get the current user and their data
+  const { currentUser, userData, loading } = useAuth();
 
   useEffect(() => {
     if (navbarRef.current) {
       setMarginTop(`${navbarRef.current.offsetHeight}px`);
     }
-
-    // Get the user's name from localStorage
-    const storedUserName = localStorage.getItem('userName');
-    if (storedUserName) {
-      setUserName(storedUserName);
-    }
   }, []);
 
-  // Interview data array
+  // Determine the display name:
+  // 1. Prefer userData.name (from Firestore) if available
+  // 2. Fallback to currentUser.displayName (from Firebase Auth profile) - Not used in the latest AuthContext
+  // 3. Fallback to currentUser.email (if no display name is set) -  Not used in the latest AuthContext
+  const displayUserName = userData?.name ||  '';
+  // console.log(userData);
+  // console.log(currentUser.uid);
+
+
+  // Interview data array (remains the same)
   const interviews = [
     {
       id: 1,
@@ -52,11 +60,33 @@ const Home = () => {
     },
   ];
 
-  // Animation variants
+  // Animation variants (remains the same)
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
   };
+
+  // Optional: Show a loading state while authentication is being checked
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}>
+        Loading user data...
+      </div>
+    );
+  }
+
+  // If currentUser is null after loading, PrivateRoute should handle the redirect.
+  // This check here is mostly for development or if Home could be accessed directly without PrivateRoute.
+  if (!currentUser) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}>
+        Please log in to view this page.
+        {/* You might also consider a direct redirect here if not using PrivateRoute everywhere */}
+        {/* <Link to="/sign-in">Go to Sign In</Link> */}
+      </div>
+    );
+  }
+
 
   return (
     <>
@@ -89,7 +119,7 @@ const Home = () => {
                   textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
                 }}
               >
-                {userName ? `Hey ${userName},` : 'Welcome!'} Get Interview-Ready
+                {displayUserName ? `Hey ${displayUserName},` : 'Welcome!'} Get Interview-Ready
               </h1>
               <p className="card-text mb-4" style={{ fontSize: '1.1rem', lineHeight: '1.7' }}>
                 Practice real interview questions with our AI-powered platform and get instant feedback to
@@ -108,11 +138,6 @@ const Home = () => {
                   borderRadius: '8px',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                  '&:hover': {
-                    backgroundColor: '#42a5f5',
-                    borderColor: '#42a5f5',
-                    transform: 'scale(1.05)',
-                  },
                 }}
               >
                 Start an Interview
@@ -142,10 +167,6 @@ const Home = () => {
                     borderRadius: '12px',
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
                     transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'scale(1.03)',
-                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.3)',
-                    },
                   }}
                 >
                   <div className="card-body d-flex flex-column">
@@ -177,11 +198,6 @@ const Home = () => {
                         color: '#61dafb',
                         fontWeight: 'bold',
                         transition: 'all 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: '#61dafb',
-                          color: '#282c34',
-                          borderColor: '#61dafb',
-                        },
                       }}
                     >
                       View Interview
@@ -194,7 +210,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Famous Interviews Section */}
+      {/* Famous Interviews Section - This section seems identical to "Your Interviews".
+          You might want to refactor if they are truly meant to display different data,
+          or remove one if it's redundant. Keeping it as-is based on your provided code for now. */}
       <section>
         <div className="container mt-5">
           <h2 className="text-center mb-4 text-white" style={{ fontSize: '2rem' }}>
@@ -215,10 +233,6 @@ const Home = () => {
                     borderRadius: '12px',
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
                     transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'scale(1.03)',
-                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.3)',
-                    },
                   }}
                 >
                   <div className="card-body d-flex flex-column">
@@ -250,11 +264,6 @@ const Home = () => {
                         color: '#61dafb',
                         fontWeight: 'bold',
                         transition: 'all 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: '#61dafb',
-                          color: '#282c34',
-                          borderColor: '#61dafb',
-                        },
                       }}
                     >
                       View Interview

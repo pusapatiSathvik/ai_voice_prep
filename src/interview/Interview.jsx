@@ -2,24 +2,26 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../Firebase/client';
+import {  db } from '../Firebase/client';
 import { Button, Form } from 'react-bootstrap'; // Using React Bootstrap components
 import { Loader2 } from 'lucide-react'; // For the loading spinner
 import { motion } from 'framer-motion'; // For animations
+import { useAuth } from '../contexts/AuthContext'
 
 const Interview = () => {
   const serverUrl = process.env.REACT_APP_SERVER_URL;
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
+  const { currentUser} = useAuth();
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({}); // State for form validation errors
-
+  // const { userData} = useAuth();
   const [formData, setFormData] = useState({
     role: "",
     type: "",
     level: "",
     techstack: "",
     amount: "",
-    userid: userId,
+    userid: currentUser.uid,
   });
 
   const navigate = useNavigate();
@@ -71,9 +73,11 @@ const Interview = () => {
     try {
       console.log(`post req to ${serverUrl}/api`)
       const response = await axios.post(`${serverUrl}/api`, formData);
+      console.log(response);
       const { interviewId } = response.data;
 
       const interview = await fetchInterviewById(interviewId);
+      console.log(interview);
       const questions = interview.questions;
       const role = interview.role;
 
@@ -87,15 +91,19 @@ const Interview = () => {
   };
 
   const fetchInterviewById = async (interviewId) => {
-    const docRef = doc(db, 'interviews', interviewId);
-    const docSnap = await getDoc(docRef);
+  const docRef = doc(db, 'interviews', interviewId);
+  // console.log("docRef",docRef);
+  const docSnap = await getDoc(docRef);
+  // console.log("docSnap",docSnap);
 
-    if (docSnap.exists()) {
-      return docSnap.data();
-    } else {
-      throw new Error('Interview not found');
-    }
-  };
+  if (docSnap.exists()) {
+    const interviewData = docSnap.data();
+    // console.log("Fetched interview data:", interviewData); // Add this line
+    return interviewData;
+  } else {
+    throw new Error('Interview not found');
+  }
+};
 
   return (
     <>
