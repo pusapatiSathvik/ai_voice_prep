@@ -19,12 +19,12 @@ const Agent = ({
     jobRole,
 }) => {
     // Logging for debugging
-    console.log("VAPI Token:", process.env.REACT_APP_VAPI_WEB_TOKEN);
-    console.log("userName prop:", propUserName);
-    console.log("userId prop:", userId);
-    console.log("questions prop:", questions);
-    console.log("interviewId prop:", interviewId);
-    console.log("jobRole prop:", jobRole);
+    // console.log("VAPI Token:", process.env.REACT_APP_VAPI_WEB_TOKEN);
+    // console.log("userName prop:", propUserName);
+    // console.log("userId prop:", userId);
+    // console.log("questions prop:", questions);
+    // console.log("interviewId prop:", interviewId);
+    // console.log("jobRole prop:", jobRole);
 
     // State variables
     const [localUserName, setLocalUserName] = useState("");
@@ -84,111 +84,129 @@ const Agent = ({
         }
     }, [interviewId, userId, jobPosition, localUserName, navigate]);
 
-    // VAPI event listeners
-    useEffect(() => {
-      const addMessageToConversation = (role, content) => {
-            if (content && content.trim() !== '') {
-                setConversation(prevConversation => {
-                    // Check if the last message in the array is the same role
-                    // and its content is identical (though it should be unique now)
-                    const lastMessage = prevConversation[prevConversation.length - 1];
-                    if (lastMessage && lastMessage.role === role && lastMessage.content === content) {
-                        return prevConversation; // Prevent exact duplicates if somehow still created
-                    }
-                    return [...prevConversation, { role, content }];
-                });
-            }
-        };
+    const conversationRef = useRef([]);
+useEffect(() => {
+    // Update the ref whenever conversation state changes
+    conversationRef.current = conversation;
+}, [conversation]); // Only update ref when 'conversation' state changes
 
-        vapi.on("speech-start", () => {
-            console.log("Assistant speech started.");
-            setIsAssistantSpeaking(true);
-            setIsUserSpeaking(false);
-            if (currentUserMessage.current) {
-                addMessageToConversation('user', currentUserMessage.current);
-                currentUserMessage.current = null;
-            }
-            currentAssistantMessage.current = ""; // Initialize for new assistant message
-        });
+// VAPI event listeners
+useEffect(() => {
+        console.log("VAPI Token (once per mount):", process.env.REACT_APP_VAPI_WEB_TOKEN);
+        console.log("userName prop (once per mount):", propUserName);
+        console.log("userId prop (once per mount):", userId);
+        console.log("questions prop (once per mount):", questions);
+        console.log("interviewId prop (once per mount):", interviewId);
+        console.log("jobRole prop (once per mount):", jobRole);
+    const addMessageToConversation = (role, content) => {
+        if (content && content.trim() !== '') {
+            setConversation(prevConversation => {
+                const lastMessage = prevConversation[prevConversation.length - 1];
+                if (lastMessage && lastMessage.role === role && lastMessage.content === content) {
+                    return prevConversation;
+                }
+                return [...prevConversation, { role, content }];
+            });
+        }
+    };
 
-        vapi.on("speech-end", () => {
-             console.log("Assistant speech ended.");
-            setIsAssistantSpeaking(false);
-            // Finalize and add the complete assistant message
-            addMessageToConversation('assistant', currentAssistantMessage.current);
-            currentAssistantMessage.current = null; // Clear the ref
-        });
-
-        vapi.on("user-speech-start", () => {
-            console.log("User speech started.");
-            setIsUserSpeaking(true);
-            setIsAssistantSpeaking(false);
-            // Clear current assistant message if it wasn't finalized by speech-end
-            if (currentAssistantMessage.current) {
-                addMessageToConversation('assistant', currentAssistantMessage.current);
-                currentAssistantMessage.current = null;
-            }
-            currentUserMessage.current = ""; // Initialize for new user message
-        });
-
-        vapi.on("user-speech-end", () => {
-            console.log("User speech ended.");
-            setIsUserSpeaking(false);
-            // Finalize and add the complete user message
+    vapi.on("speech-start", () => {
+        console.log("Assistant speech started.");
+        setIsAssistantSpeaking(true);
+        setIsUserSpeaking(false);
+        if (currentUserMessage.current) {
             addMessageToConversation('user', currentUserMessage.current);
-            currentUserMessage.current = null; // Clear the ref
-        });
+            currentUserMessage.current = null;
+        }
+        currentAssistantMessage.current = "";
+    });
 
-        vapi.on("call-start", () => {
-            console.log("Call started.");
-            alert("Call connected..");
-            setCallStatus("ACTIVE");
-            setConversation([]); // Clear conversation on new call start
-        });
+    vapi.on("speech-end", () => {
+        console.log("Assistant speech ended.");
+        setIsAssistantSpeaking(false);
+        addMessageToConversation('assistant', currentAssistantMessage.current);
+        currentAssistantMessage.current = null;
+    });
 
-        vapi.on("call-end", () => {
-             console.log("Call ended.");
-            alert("Interview ended..");
-            setCallStatus("ENDED");
-            // Ensure any pending message is added before generating feedback
-            if (currentAssistantMessage.current) {
-                addMessageToConversation('assistant', currentAssistantMessage.current);
+    vapi.on("user-speech-start", () => {
+        console.log("User speech started.");
+        setIsUserSpeaking(true);
+        setIsAssistantSpeaking(false);
+        if (currentAssistantMessage.current) {
+            addMessageToConversation('assistant', currentAssistantMessage.current);
+            currentAssistantMessage.current = null;
+        }
+        currentUserMessage.current = "";
+    });
+
+    vapi.on("user-speech-end", () => {
+        console.log("User speech ended.");
+        setIsUserSpeaking(false);
+        addMessageToConversation('user', currentUserMessage.current);
+        currentUserMessage.current = null;
+    });
+
+    vapi.on("call-start", () => {
+        console.log("Call started.");
+        alert("Call connected..");
+        setCallStatus("ACTIVE");
+        setConversation([]);
+        currentAssistantMessage.current = null; // Clear refs on new call
+        currentUserMessage.current = null;
+    });
+
+    vapi.on("call-end", () => {
+        console.log("Call ended.");
+        alert("Interview ended..");
+        setCallStatus("ENDED");
+
+        // Ensure any pending message is added before generating feedback
+        // Use a functional update or the ref for the final message to ensure it's in state
+        // This part needs careful handling as state updates are asynchronous
+        setConversation(prevConversation => {
+            let finalConversation = [...prevConversation];
+            if (currentAssistantMessage.current && currentAssistantMessage.current.trim() !== '') {
+                finalConversation.push({ role: 'assistant', content: currentAssistantMessage.current });
             }
-            if (currentUserMessage.current) {
-                addMessageToConversation('user', currentUserMessage.current);
+            if (currentUserMessage.current && currentUserMessage.current.trim() !== '') {
+                finalConversation.push({ role: 'user', content: currentUserMessage.current });
             }
-
-            // A small delay might be helpful to ensure all messages are processed
-            // though speech-end should ideally handle it.
-            setTimeout(() => {
-                GenerateFeedback(conversation);
-            }, 100); // Small delay to ensure state update
+            // Now, call GenerateFeedback with this most up-to-date conversation
+            // Use setTimeout to ensure the state update has definitely propagated
+            // before GenerateFeedback uses it, if it were to read from the state directly.
+            // But since we pass it as an argument, it's fine.
+            GenerateFeedback(finalConversation); // Pass the finalized array directly
+            return finalConversation; // Update the state
         });
 
-        //improved set version..
-        vapi.on("message", (message) => {
-            if (message?.conversation && message.conversation.length > 0) {
-                const latestTurn = message.conversation[message.conversation.length - 1]; // Get the very last turn from the Vapi update
-                if (latestTurn) {
-                    if (latestTurn.role === 'assistant') {
-                        currentAssistantMessage.current = latestTurn.content;
-                    } else if (latestTurn.role === 'user') {
-                        currentUserMessage.current = latestTurn.content;
-                    }
+        currentAssistantMessage.current = null; // Clear refs after call end
+        currentUserMessage.current = null;
+    });
+
+
+    vapi.on("message", (message) => {
+        if (message?.conversation && message.conversation.length > 0) {
+            const latestTurn = message.conversation[message.conversation.length - 1];
+            if (latestTurn) {
+                if (latestTurn.role === 'assistant') {
+                    currentAssistantMessage.current = latestTurn.content;
+                } else if (latestTurn.role === 'user') {
+                    currentUserMessage.current = latestTurn.content;
                 }
             }
-        });
+        }
+    });
 
-        return () => {
-            vapi.removeAllListeners("speech-start");
-            vapi.removeAllListeners("speech-end");
-            vapi.removeAllListeners("user-speech-start");
-            vapi.removeAllListeners("user-speech-end");
-            vapi.removeAllListeners("call-start");
-            vapi.removeAllListeners("call-end");
-            vapi.removeAllListeners("message");
-        };
-    }, [GenerateFeedback, conversation]);
+    return () => {
+        vapi.removeAllListeners("speech-start");
+        vapi.removeAllListeners("speech-end");
+        vapi.removeAllListeners("user-speech-start");
+        vapi.removeAllListeners("user-speech-end");
+        vapi.removeAllListeners("call-start");
+        vapi.removeAllListeners("call-end");
+        vapi.removeAllListeners("message");
+    };
+}, [GenerateFeedback, propUserName, userId, questions, interviewId, jobRole]); // Removed 'conversation' from dependencies. 'GenerateFeedback' itself is already memoized.
 
     // Function to start the interview call
     const startCall = () => {
