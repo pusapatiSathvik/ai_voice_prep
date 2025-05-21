@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SignIn from './Auth/SignIn';
 import SignUp from './Auth/SignUp';
 import Home from './root/Home';
+import InterviewsFetch from './root/InterviewsFetch';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 // import ProtectedRoute from './components/ProtectedRoute';
 import Page from './interview/Page';
@@ -31,6 +32,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/interviewIds"
+            element={
+              <PrivateRoute>
+                <InterviewsFetch />
               </PrivateRoute>
             }
           />

@@ -1,18 +1,14 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; // For animations
 import { useAuth } from '../contexts/AuthContext'; // Import the useAuth hook
-
 const Home = () => {
-  const navbarRef = useRef(null);
-  const [marginTop, setMarginTop] = useState('80px');
-  // Removed local 'userName' state as it will come from AuthContext
-  // const [userName, setUserName] = useState('');
-
-  // Use the useAuth hook to get the current user and their data
   const { currentUser, userData, loading } = useAuth();
 
+  const navbarRef = useRef(null);
+  const [marginTop, setMarginTop] = useState('80px');
+  const currentUserId = currentUser.uid;
   useEffect(() => {
     if (navbarRef.current) {
       setMarginTop(`${navbarRef.current.offsetHeight}px`);
@@ -27,8 +23,6 @@ const Home = () => {
   // console.log(userData);
   // console.log(currentUser.uid);
 
-
-  // Interview data array (remains the same)
   const interviews = [
     {
       id: 1,
