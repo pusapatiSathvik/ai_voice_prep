@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; // For animations
 import { useAuth } from '../contexts/AuthContext'; // Import the useAuth hook
+import InterviewsFetch from './InterviewsFetch'; // Update path as necessary
+
 const Home = () => {
   const { currentUser, userData, loading } = useAuth();
 
@@ -141,7 +143,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
+      {/* <section>
         <div className="container mt-5">
           <h2 className="text-center mb-4 text-white" style={{ fontSize: '2rem' }}>
             Your Interviews
@@ -202,7 +204,8 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
+      <InterviewsFetch />
 
       {/* Famous Interviews Section - This section seems identical to "Your Interviews".
           You might want to refactor if they are truly meant to display different data,
