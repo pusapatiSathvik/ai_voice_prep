@@ -34,3 +34,14 @@ h3, h5, h6 {
   border-radius: 8px;
   color: #6b5e00;
 }
+
+/* In App.css or a dedicated Navbar.css */
+.nav-link.active {
+  color: #61dafb !important; /* Example: Highlight with your theme color */
+  font-weight: bold;
+  border-bottom: 2px solid #61dafb; /* Example: Add an underline */
+}
+
+.navbar-brand {
+  cursor: default !important; /* Forces the default cursor */
+}

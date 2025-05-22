@@ -1,5 +1,3 @@
-import { useRef, useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; // For animations
 import { useAuth } from '../contexts/AuthContext'; // Import the useAuth hook
@@ -7,16 +5,7 @@ import InterviewsFetch from './InterviewsFetch'; // Update path as necessary
 
 const Home = () => {
   const { currentUser, userData, loading } = useAuth();
-
-  const navbarRef = useRef(null);
-  const [marginTop, setMarginTop] = useState('80px');
-  const currentUserId = currentUser.uid;
-  useEffect(() => {
-    if (navbarRef.current) {
-      setMarginTop(`${navbarRef.current.offsetHeight}px`);
-    }
-  }, []);
-
+  // const currentUserId = currentUser.uid;
   // Determine the display name:
   // 1. Prefer userData.name (from Firestore) if available
   // 2. Fallback to currentUser.displayName (from Firebase Auth profile) - Not used in the latest AuthContext
@@ -86,10 +75,8 @@ const Home = () => {
 
   return (
     <>
-      <Navbar ref={navbarRef} />
-
       <section>
-        <div className="container" style={{ marginTop, padding: '20px' }}>
+        <div className="container" style={{ marginTop : '80px', padding: '20px' }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -143,69 +130,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* <section>
-        <div className="container mt-5">
-          <h2 className="text-center mb-4 text-white" style={{ fontSize: '2rem' }}>
-            Your Interviews
-          </h2>
-          <div className="row">
-            {interviews.map((interview) => (
-              <motion.div
-                key={interview.id}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                className="col-md-6 mb-4"
-              >
-                <div
-                  className="card bg-dark text-white h-100"
-                  style={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <div className="card-body d-flex flex-column">
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-                      <span style={{ fontSize: '2rem' }}></span>
-                      <span
-                        className={`badge ${
-                          interview.category === 'Frontend' ? 'bg-info' : 'bg-primary'
-                        } text-white`}
-                        style={{ fontSize: '0.9rem', padding: '8px 12px', borderRadius: '16px' }}
-                      >
-                        {interview.category}
-                      </span>
-                    </div>
-                    <h5 className="card-title" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                      {interview.title}
-                    </h5>
-                    <p className="card-text mb-2" style={{ fontSize: '1rem' }}>
-                      {interview.date} - {interview.score}
-                    </p>
-                    <p className="card-text flex-grow-1" style={{ fontSize: '1.1rem' }}>
-                      You haven't taken the interview yet. Take it now to improve your skills.
-                    </p>
-                    <Link
-                      to="/interview"
-                      className="btn btn-outline-light mt-auto"
-                      style={{
-                        borderColor: '#61dafb',
-                        color: '#61dafb',
-                        fontWeight: 'bold',
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      View Interview
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-      <InterviewsFetch />
+      <InterviewsFetch limit={2}/>
 
       {/* Famous Interviews Section - This section seems identical to "Your Interviews".
           You might want to refactor if they are truly meant to display different data,

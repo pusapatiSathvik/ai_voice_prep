@@ -1,8 +1,8 @@
 import React from 'react';
-import '../App.css';
+import '../App.css'; // Ensure App.css is imported for custom styles
 import { auth } from '../Firebase/client';
 import { signOut } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -21,9 +21,9 @@ const Navbar = () => {
     <div>
       <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body fixed-top" data-bs-theme="dark">
         <div className="container-fluid">
-          <a className="navbar-brand" href="/">
-            Navbar
-          </a>
+          <span className="navbar-brand">
+            HireView
+          </span>
           <button
             className="navbar-toggler"
             type="button"
@@ -35,22 +35,27 @@ const Navbar = () => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+          {/* Added flex-grow-1 to make this div take up available space
+              and justify-content-between to push items to ends if needed,
+              though for centering, we'll apply justify-content-center to the ul. */}
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {/* Removed 'me-auto' and added 'justify-content-center' to center the nav items.
+                'flex-grow-1' on the ul ensures it takes up available space to be centered within. */}
+            <ul className="navbar-nav justify-content-center flex-grow-1 mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="/">
+                <NavLink className="nav-link" to="/" end>
                   Home
-                </a>
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/link">
-                  Link
-                </a>
+                <NavLink className="nav-link" to="/yourInterviews">
+                  Interviews
+                </NavLink>
               </li>
               <li className="nav-item dropdown">
                 <a
                   className="nav-link dropdown-toggle"
-                  href="/dropdown"
+                  href="/"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -84,6 +89,7 @@ const Navbar = () => {
                 </span>
               </li>
             </ul>
+            {/* The logout button will naturally align to the right due to the flex-grow-1 on the ul */}
             <button className="btn btn-outline-danger" onClick={handleLogout}>
               Logout
             </button>

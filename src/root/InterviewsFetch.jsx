@@ -1,87 +1,74 @@
-import { useState, useEffect } from "react"; // Import useEffect
+import { useState, useEffect,useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-// import { Link } from "react-router-dom"; // Link is not directly used for the button, but might be for other navigation
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } }, // Added transition for animation
 };
 
-const InterviewsFetch = () => {
-const navigate = useNavigate();
+const InterviewsFetch = (props) => {
+  console.log("limit is ..", props.limit); // should now show 2
+  const limit = props.limit;
+  const navigate = useNavigate();
   const { currentUser, loading } = useAuth();
-  // Use optional chaining for currentUser?.uid to safely access uid
   const currentUserId = currentUser?.uid;
-
   const [interviews, setInterviews] = useState([]);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState(null); // State to handle fetch errors
   const serverUrl = process.env.REACT_APP_SERVER_URL;
-
-  // --- useEffect to automatically fetch interviews ---
-  useEffect(() => {
-    // Only attempt to fetch if currentUser.uid is available and we're not already fetching
-    if (currentUserId && !fetching) {
-      handleFetchInterviews();
-    }
-  },[]); // Dependency array: re-run this effect when currentUserId changes
-
-  const handleFetchInterviews = async () => {
-    // Prevent fetching if userId is not available
-    if (!currentUserId) {
-      console.warn("User ID not available. Cannot fetch interviews.");
-      return;
-    }
-
-    try {
-      console.log(`Sending GET request to ${serverUrl}/interviewIDs with userId: ${currentUserId}`);
-      setFetching(true);
-      setError(null); // Clear any previous errors
-
-      const response = await axios.get(`${serverUrl}/interviewIDs`, {
-        params: { userId: currentUserId }, // for GET requests, use query params
-      });
-      setInterviews(response.data);
-      console.log("Fetched interviews:", response.data);
-    } catch (error) {
-      console.error("Error fetching interviews:", error);
-      // Set a user-friendly error message
-      setError("Failed to fetch interviews. Please try again later.");
-    } finally {
-      setFetching(false);
-    }
+  const isToggleOnRef = useRef(false);
+  const choice = () => {
+    isToggleOnRef.current = !isToggleOnRef.current; // Flip the boolean value
+    return isToggleOnRef.current; // Return the new value
   };
-
-  const handleSeeFeedback = async (interviewId) => {
-    if (!interviewId) {
-      alert("No feedback available yet.");
-    } else {
-      // In a real app, you'd likely open a modal, navigate to a feedback page,
-      // or display the feedback in a more structured way.
-      alert(interviewId);
-      try{
-        console.log(`Sending GET request to ${serverUrl}/feedbackID with Interviewid: ${interviewId}`);
-        const response = await axios.get(`${serverUrl}/feedbackID`, {
-        params: { Id: interviewId,
-            userId: currentUserId,
-         },
-      });
-        console.log(response.data);
-        const { feedbackId, feedback } = response.data;
-        console.log("Feedback ID:", feedbackId);
-        // console.log("Feedback ID:", feedback);
-        if(feedbackId){
-            navigate(`/interview/${interviewId}/feedback/${feedbackId}`);
+  useEffect(() => {
+      const handleFetchInterviews = async (limit) => {
+        if (!currentUserId) {
+          console.warn("User ID not available. Cannot fetch interviews.");
+          return;
         }
-      }catch(error){
-        console.error("Error fetching feedback:", error);
-        alert("Failed to fetch feedback. Please try again later.");
-      }
+        try {
+          console.log(`Sending GET request to ${serverUrl}/interviewIDs with userId: ${currentUserId}`);
+          
+          setFetching(true);
+          setError(null);
+    
+          const response = await axios.get(`${serverUrl}/interviewIDs`, {
+            params: { userId: currentUserId },
+          });
+          let interviewData = response.data;
+          console.log(limit);
+          if (limit && Array.isArray(interviewData)) {
+            console.log(limit);
+            interviewData = interviewData.slice(0, limit);
+            setInterviews(interviewData);
+            console.log("Fetched interviews:", interviewData);
+          }else{
+                setInterviews(response.data);
+                console.log("Fetched interviews:", response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching interviews:", error);
+          setError("Failed to fetch interviews. Please try again later.");
+        } finally {
+          setFetching(false);
+        }
+      };
+    if (currentUserId && !fetching) {
+      handleFetchInterviews(limit);
+    }
+    // eslint-disable-next-line
+  },[]);
 
-
+  const handleSeeFeedback = async (feedbackID,interviewId) => {
+    if (!feedbackID) {
+      alert("No feedback available yet.");
+    } 
+    else {
+        navigate(`/interview/${interviewId}/feedback/${feedbackID}`);
     }
   };
 
@@ -98,7 +85,7 @@ const navigate = useNavigate();
       .map(word =>
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       )
-      .join(', '); // Join with a comma and space for better readability
+      .join(', ');
   };
 
   // Display loading state while authentication is being checked or interviews are being fetched
@@ -126,7 +113,7 @@ const navigate = useNavigate();
       </h2>
 
       {/* The "Refresh Interviews" button can remain for manual re-fetching */}
-      <div className="text-center mb-4">
+      {/* <div className="text-center mb-4">
         <button
           className="btn btn-primary"
           onClick={handleFetchInterviews}
@@ -143,7 +130,7 @@ const navigate = useNavigate();
         >
           {fetching ? "Loading..." : "Refresh Interviews"}
         </button>
-      </div>
+      </div> */}
 
       {/* Display error message if fetching failed */}
       {error && <div className="alert alert-danger text-center mt-3">{error}</div>}
@@ -159,9 +146,10 @@ const navigate = useNavigate();
       {interviews.length > 0 && (
         <section>
           <div className="row">
-            {interviews.map(({ interviewId, interview, feedback }) => (
-              <motion.div
-                key={interviewId}
+            {interviews.map(({ interviewId, interview, feedbackID
+ }) => (
+            <motion.div
+                key={interview.id}
                 variants={cardVariants}
                 initial="hidden"
                 animate="visible"
@@ -170,18 +158,28 @@ const navigate = useNavigate();
                 <div
                   className="card bg-dark text-white h-100"
                   style={{
-                    borderRadius: "12px",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                    transition: "all 0.3s ease",
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   <div className="card-body d-flex flex-column">
-                    <h5
-                      className="card-title"
-                      style={{ fontSize: "1.5rem", fontWeight: "bold" }}
-                    >
-                      {capitalizeFirstLetter(interview.role) || "Untitled Interview"}
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <span style={{ fontSize: '2rem' }}></span>
+                      <span
+                        className={`badge ${
+                          choice() ? 'bg-info' : 'bg-primary'
+                        } text-white`}
+                        style={{ fontSize: '0.9rem', padding: '8px 12px', borderRadius: '16px' }}
+                      >
+                        {interview.role}
+                      </span>
+                    </div>
+
+                    <h5 className="card-title" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                      {capitalizeFirstLetter(interview.role) + " Interview"}
                     </h5>
+
                     <p className="card-text mb-1">
                       <strong>Date:</strong>{" "}
                       {interview.createdAt
@@ -208,10 +206,13 @@ const navigate = useNavigate();
                       <strong>Topics:</strong>{" "}
                       {formatTechStack(interview.techstack) || "Not specified"}
                     </p>
+                    <p className="card-text flex-grow-1" style={{ fontSize: '1.1rem' }}>
+                      You haven't taken the interview yet. Take it now to improve your skills.
+                    </p>
 
                     <button
                       className="btn btn-outline-light mt-auto"
-                      onClick={() => handleSeeFeedback(interviewId)}
+                      onClick={() => handleSeeFeedback(feedbackID,interviewId)}
                       style={{
                         borderColor: "#61dafb",
                         color: "#61dafb",
@@ -221,6 +222,7 @@ const navigate = useNavigate();
                     >
                       See Feedback
                     </button>
+
                   </div>
                 </div>
               </motion.div>
